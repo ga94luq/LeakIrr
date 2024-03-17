@@ -7,7 +7,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import numpy as np
 
-df = pd.read_csv('C:/Users/simon/Documents/Studium/Master/2023_fa_sio_auswertung/Leakage.csv')
+df = pd.read_csv('https://raw.githubusercontent.com/ga94luq/LeakIrr/main/Leakage.csv')
 
 chart_types = [
     {'label': 'Scatter Plot', 'value': 'scatter'},
