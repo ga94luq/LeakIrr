@@ -1,14 +1,10 @@
 from dash import Dash, dcc, html, Input, Output
-import plotly.express as px
 import pandas as pd
-from datetime import datetime
 import math
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-import numpy as np
 
 df = pd.read_csv('https://raw.githubusercontent.com/ga94luq/LeakIrr/main/Leakage.csv')
-
 chart_types = [
     {'label': 'Scatter Plot', 'value': 'scatter'},
     {'label': 'Bar Chart', 'value': 'bar'}
@@ -61,8 +57,8 @@ app.layout = html.Div(style={'backgroundColor': 'white'}, children=[
     dcc.RangeSlider(
         id='range-slider-x',
         min=1, max=6, step=1,
-        marks={i: str(i) for i in range(1, 6)},
-        value=[1, 5],
+        marks={i: str(i) for i in range(1, 7)},
+        value=[1, 6],
         className='slider-x',
         tooltip={"placement": "bottom", "always_visible": False}
     ),
@@ -252,8 +248,6 @@ def update_bar_chart(x_range, y_range, x_column, y_columns, Reihen_select, Spalt
 
     Name_subplots = []
 
-
-
     for row in ReihenWert:
         for y in y_columns:
             for c, col in enumerate(SpaltenWert, start=1):
@@ -275,48 +269,71 @@ def update_bar_chart(x_range, y_range, x_column, y_columns, Reihen_select, Spalt
     fig = make_subplots(rows=AnzReihen, cols=AnzSpalten, subplot_titles=(Name_subplots))
 
     if chart_type == 'line':
-        if AnzSpalten==1:
-            if AnzReihen > 1:
-                for r, Reihe in enumerate(ReihenWert, start=1):
-                    for y_column in y_columns:
-                        fig.add_trace(go.Scatter(x=df[x_column],
-                                                 y=df[y_column][(df[Reihen_select].isin(ReihenWert[r-1].split()))],
-                                                 mode='lines',
-                                                 name=str(y_column) + ' ' + Reihe + ' ' + Reihen_select),
-                                      row=r, col=1)
-        if AnzSpalten==1:
-            if AnzReihen==1:
-                for y_column in y_columns:
-                    fig.add_trace(go.Scatter(x=df[x_column],
-                                             y=df[y_column][(df[Reihen_select].isin(ReihenWert))],
-                                             mode='lines',
-                                             name=str(y_column) + ' ' + Reihen_select),
-                                  row=1, col=1)
-
-        if AnzReihen==1:
-            if AnzSpalten > 1:
-                for s, Spalte in enumerate(SpaltenWert, start=1):
-                    for y_column in y_columns:
-                        fig.add_trace(go.Scatter(x=df[x_column],
-                                                 y=df[y_column][(df[Spalten_select].isin(SpaltenWert[s - 1].split()))],
-                                                 mode='lines',
-                                                 name=str(y_column) + ' ' + Spalte + ' ' + Spalten_select),
-                                      row=1, col=s)
-
-        if AnzSpalten > 1:
-            if AnzReihen > 1:
-                try:
-                    for y, y_column in enumerate(y_columns, start=0):
-                        for s, Spalte in enumerate(SpaltenWert, start=1):
-                            for r, Reihe in enumerate(ReihenWert, start=1):
-                                SpaltenNummer = s+y*len(SpaltenWert)
-                                fig.add_trace(go.Scatter(x=df[x_column],
-                                                     y=df[y_column][(df[Reihen_select].isin(ReihenWert[r - 1].split())) & (df[Spalten_select].isin(SpaltenWert[s - 1].split()))],
+        if chart_type == 'line':
+            if AnzSpalten == 1:
+                if AnzReihen > 1:
+                    for r, Reihe in enumerate(ReihenWert, start=1):
+                        for y_column in y_columns:
+                            fig.add_trace(go.Scatter(x=df[x_column],
+                                                     y=df[y_column][
+                                                         (df[Reihen_select].isin(ReihenWert[r - 1].split()))],
                                                      mode='lines',
                                                      name=str(y_column) + ' ' + Reihe + ' ' + Reihen_select),
-                                                     row=r, col=SpaltenNummer)
-                except:
-                    print('Fehler!')
+                                          row=r, col=1)
+            if AnzSpalten == 1:
+                if AnzReihen == 1:
+                    print('Geht rein')
+                    for y_column in y_columns:
+                        fig.add_trace(go.Scatter(x=df[x_column],
+                                                 y=df[y_column][(df[Reihen_select].isin(ReihenWert))],
+                                                 mode='lines',
+                                                 name=str(y_column) + ' ' + Reihen_select),
+                                      row=1, col=1)
+
+            if AnzReihen == 1:
+                if AnzSpalten > 1:
+                    for s, Spalte in enumerate(SpaltenWert, start=1):
+                        for y_column in y_columns:
+                            fig.add_trace(go.Scatter(x=df[x_column],
+                                                     y=df[y_column][
+                                                         (df[Spalten_select].isin(SpaltenWert[s - 1].split()))],
+                                                     mode='lines',
+                                                     name=str(y_column) + ' ' + Spalte + ' ' + Spalten_select),
+                                          row=1, col=s)
+
+            if AnzSpalten > 1:
+                if AnzReihen > 1:
+                    try:
+                        for y, y_column in enumerate(y_columns, start=0):
+                            for s, Spalte in enumerate(SpaltenWert, start=1):
+                                for r, Reihe in enumerate(ReihenWert, start=1):
+                                    if Spalten_select:
+                                        SpaltenNummer = s + y * len(SpaltenWert)
+                                        fig.add_trace(go.Scatter(x=df[x_column],
+                                                                 y=df[y_column][
+                                                                     (df[Reihen_select].isin(
+                                                                         ReihenWert[r - 1].split())) & (
+                                                                         df[Spalten_select].isin(
+                                                                             SpaltenWert[s - 1].split()))],
+                                                                 mode='lines',
+                                                                 name=str(
+                                                                     y_column) + ' ' + Reihe + ' ' + Reihen_select + ' ' + Spalte + ' ' + Spalten_select),
+                                                      row=r, col=SpaltenNummer)
+                                    else:
+                                        SpaltenNummer = s
+                                        fig.add_trace(go.Scatter(x=df[x_column],
+                                                                 y=df[y_column][
+                                                                     (df[Reihen_select].isin(
+                                                                         ReihenWert[r - 1].split()))],
+                                                                 mode='lines',
+                                                                 name=str(
+                                                                     y_column) + ' ' + Reihe + ' ' + Reihen_select),
+                                                      row=r, col=SpaltenNummer)
+
+                    except:
+                        print(SpaltenWert)
+                        print(ReihenWert)
+                        print('Fehler!')
 
     elif chart_type == 'bar':
         if chart_type == 'bar':
@@ -328,7 +345,6 @@ def update_bar_chart(x_range, y_range, x_column, y_columns, Reihen_select, Spalt
                                                  y=df[y_column][(df[Reihen_select].isin(ReihenWert[r - 1].split()))],
                                                  name=str(y_column) + ' ' + Reihe + ' ' + Reihen_select),
                                           row=r, col=1)
-
             if AnzSpalten == 1:
                 if AnzReihen == 1:
                     print('Geht rein')
@@ -353,15 +369,28 @@ def update_bar_chart(x_range, y_range, x_column, y_columns, Reihen_select, Spalt
                         for y, y_column in enumerate(y_columns, start=0):
                             for s, Spalte in enumerate(SpaltenWert, start=1):
                                 for r, Reihe in enumerate(ReihenWert, start=1):
-                                    SpaltenNummer = s + y * len(SpaltenWert)
+                                    if Spalten_select:
+                                        SpaltenNummer = s + y * len(SpaltenWert)
+                                        fig.add_trace(go.Bar(x=df[x_column],
+                                                             y=df[y_column][
+                                                                 (df[Reihen_select].isin(ReihenWert[r - 1].split())) & (
+                                                                     df[Spalten_select].isin(
+                                                                         SpaltenWert[s - 1].split()))],
+                                                             name=str(y_column) + ' ' + Reihe + ' ' + Reihen_select + ' ' + Spalte + ' ' + Spalten_select),
+                                                      row=r, col=SpaltenNummer)
+                                    else:
+                                        SpaltenNummer = s
+                                        fig.add_trace(go.Bar(x=df[x_column],
+                                                             y=df[y_column][
+                                                                 (df[Reihen_select].isin(ReihenWert[r - 1].split()))],
+                                                             name=str(y_column) + ' ' + Reihe + ' ' + Reihen_select),
+                                                      row=r, col=SpaltenNummer)
 
-                                    fig.add_trace(go.Bar(x=df[x_column],
-                                                         y=df[y_column][
-                                                             (df[Reihen_select].isin(ReihenWert[r - 1].split())) & (
-                                                                 df[Spalten_select].isin(SpaltenWert[s - 1].split()))],
-                                                         name=str(y_column) + ' ' + Reihe + ' ' + Reihen_select),
-                                                  row=r, col=SpaltenNummer)
+
+
                     except:
+                        print(SpaltenWert)
+                        print(ReihenWert)
                         print('Fehler!')
 
     elif chart_type == 'scatter':
@@ -376,7 +405,6 @@ def update_bar_chart(x_range, y_range, x_column, y_columns, Reihen_select, Spalt
                                                      mode='markers',
                                                      name=str(y_column) + ' ' + Reihe + ' ' + Reihen_select),
                                           row=r, col=1)
-
             if AnzSpalten == 1:
                 if AnzReihen == 1:
                     print('Geht rein')
@@ -404,17 +432,32 @@ def update_bar_chart(x_range, y_range, x_column, y_columns, Reihen_select, Spalt
                         for y, y_column in enumerate(y_columns, start=0):
                             for s, Spalte in enumerate(SpaltenWert, start=1):
                                 for r, Reihe in enumerate(ReihenWert, start=1):
-                                    SpaltenNummer = s + y * len(SpaltenWert)
+                                    if Spalten_select:
+                                        SpaltenNummer = s + y * len(SpaltenWert)
+                                        fig.add_trace(go.Scatter(x=df[x_column],
+                                                                 y=df[y_column][
+                                                                     (df[Reihen_select].isin(
+                                                                         ReihenWert[r - 1].split())) & (
+                                                                         df[Spalten_select].isin(
+                                                                             SpaltenWert[s - 1].split()))],
+                                                                 mode='markers',
+                                                                 name=str(
+                                                                     y_column) + ' ' + Reihe + ' ' + Reihen_select + ' ' + Spalte + ' ' + Spalten_select),
+                                                      row=r, col=SpaltenNummer)
+                                    else:
+                                        SpaltenNummer = s
+                                        fig.add_trace(go.Scatter(x=df[x_column],
+                                                                 y=df[y_column][
+                                                                     (df[Reihen_select].isin(
+                                                                         ReihenWert[r - 1].split()))],
+                                                                 mode='markers',
+                                                                 name=str(
+                                                                     y_column) + ' ' + Reihe + ' ' + Reihen_select),
+                                                      row=r, col=SpaltenNummer)
 
-                                    fig.add_trace(go.Scatter(x=df[x_column],
-                                                             y=df[y_column][
-                                                                 (df[Reihen_select].isin(ReihenWert[r - 1].split())) & (
-                                                                     df[Spalten_select].isin(
-                                                                         SpaltenWert[s - 1].split()))],
-                                                             mode='markers',
-                                                             name=str(y_column) + ' ' + Reihe + ' ' + Reihen_select),
-                                                  row=r, col=SpaltenNummer)
                     except:
+                        print(SpaltenWert)
+                        print(ReihenWert)
                         print('Fehler!')
 
     large_rockwell_template = dict(
