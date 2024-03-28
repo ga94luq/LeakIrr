@@ -9,8 +9,8 @@ chart_types = [
     {'label': 'Scatter Plot', 'value': 'scatter'},
     {'label': 'Bar Chart', 'value': 'bar'}
 ]
-from tkinter import filedialog
-df = pd.read_csv(filedialog.askopenfilename())
+
+df = pd.read_csv('https://raw.githubusercontent.com/ga94luq/LeakIrr/main/Leakage.csv')
 
 df['Bezeichnung'] = 'SOC:' + df['SOC'].astype(str) + '% SiO:' + df['SiO'].astype(str) + '% D:' + df['D'].astype(str)
 data = df
